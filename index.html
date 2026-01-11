@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrowdChain - Decentralized Crowdfunding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00ff88',
+                        dark: '#0f1117',
+                        card: '#1a1d29',
+                        cardHover: '#252834',
+                        border: '#2d3142'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in { animation: slideIn 0.4s ease-out; }
+        .glass {
+            background: rgba(26, 29, 41, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white font-sans">
+    
+    <header class="glass sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-2xl font-bold text-primary cursor-pointer" onclick="window.location.reload()">CrowdChain</h1>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#campaigns" class="text-primary font-semibold border-b-2 border-primary pb-1">Campaigns</a>
+                        <a href="#" onclick="showComingSoon('My Projects'); return false;" class="text-gray-400 hover:text-white transition">My Projects</a>
+                        <a href="#" onclick="showCreateModal(); return false;" class="text-gray-400 hover:text-white transition">Create</a>
+                        <a href="#" onclick="showComingSoon('About'); return false;" class="text-gray-400 hover:text-white transition">About</a>
+                    </nav>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg">
+                        <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-400">Sepolia</span>
+                    </div>
+                    
+                    <div id="walletBalanceDisplay" class="hidden bg-card px-4 py-2 rounded-lg">
+                        <span class="text-sm text-gray-400">Balance:</span>
+                        <span class="text-white font-semibold ml-2" id="balanceAmount">0.0 ETH</span>
+                    </div>
+                    
+                    <button id="connectWalletBtn" class="bg-primary text-dark px-6 py-2 rounded-lg font-semibold hover:glow transition transform hover:scale-105">
+                        Connect Wallet
+                    </button>
+                    
+                    <div id="userAvatar" class="hidden w-10 h-10 bg-gradient-to-br from-primary to-blue-500 rounded-full flex items-center justify-center font-bold text-dark">
+                        <span id="avatarText">0x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-slide-in">
+            
+            <div class="glass rounded-xl p-6 hover:bg-cardHover transition transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-400 text-sm">Total Raised</h3>
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="totalRaisedETH">0 ETH</div>
+                <div class="text-gray-500 text-sm" id="totalRaisedUSD">$0</div>
+            </div>
+            
+            <div class="glass rounded-xl p-6 hover:bg-cardHover transition transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-400 text-sm">Active Campaigns</h3>
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="activeCampaignsCount">0</div>
+                <div class="text-gray-500 text-sm">campaigns running</div>
+            </div>
+            
+            <div class="glass rounded-xl p-6 hover:bg-cardHover transition transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-400 text-sm">Success Rate</h3>
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold mb-1">68%</div>
+                <div class="text-gray-500 text-sm">avg success</div>
+            </div>
+            
+            <div class="glass rounded-xl p-6 hover:bg-cardHover transition">
+                <h3 class="text-gray-400 text-sm mb-4">Quick Support</h3>
+                <button onclick="showComingSoon('Random Support')" class="w-full bg-primary text-dark py-3 rounded-lg font-bold hover:glow transition">
+                    Support Random
+                </button>
+            </div>
+        </div>
+
+        <div class="glass rounded-xl p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" placeholder="Search campaigns..." class="md:col-span-2 w-full bg-card border border-border rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary">
+                <select class="bg-card border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary">
+                    <option>All Status</option>
+                    <option>Active</option>
+                    <option>Funded</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-4" id="campaignListContainer">
+                <div class="text-center text-gray-500 py-12">Connect wallet to view campaigns</div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="glass rounded-xl p-6 sticky top-24" id="campaignDetailsContainer">
+                    <div class="text-center text-gray-500 py-12">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p>Select a campaign</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- CREATE MODAL -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="glass rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">Create Campaign</h2>
+                <button onclick="hideCreateModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Goal (ETH)</label>
+                    <input type="number" id="createGoalInput" placeholder="10" step="0.1" class="w-full bg-card border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Duration (Days)</label>
+                    <input type="number" id="createDurationInput" placeholder="7" min="1" class="w-full bg-card border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary">
+                </div>
+                <button onclick="createCampaign()" class="w-full bg-primary text-dark py-4 rounded-lg font-bold hover:glow transition">
+                    Create Campaign
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTRIBUTE MODAL -->
+    <div id="contributeModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="glass rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">Contribute</h2>
+                <button onclick="hideContributeModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Amount (ETH)</label>
+                    <input type="number" id="contributeAmountInput" placeholder="0.1" step="0.01" min="0.01" class="w-full bg-card border border-border rounded-lg px-4 py-3 text-white text-lg focus:outline-none focus:border-primary">
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="document.getElementById('contributeAmountInput').value = '0.1'" class="flex-1 bg-card hover:bg-primary hover:text-dark transition px-4 py-2 rounded-lg font-semibold">0.1</button>
+                    <button onclick="document.getElementById('contributeAmountInput').value = '0.5'" class="flex-1 bg-card hover:bg-primary hover:text-dark transition px-4 py-2 rounded-lg font-semibold">0.5</button>
+                    <button onclick="document.getElementById('contributeAmountInput').value = '1'" class="flex-1 bg-card hover:bg-primary hover:text-dark transition px-4 py-2 rounded-lg font-semibold">1</button>
+                </div>
+                <button onclick="doContribute()" class="w-full bg-primary text-dark py-4 rounded-lg font-bold text-lg hover:glow transition">
+                    Confirm & Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-8 right-8 glass rounded-lg p-4 shadow-2xl transform translate-y-32 transition-transform duration-300 max-w-sm z-50">
+        <div class="flex items-start space-x-3">
+            <div id="toastIcon"></div>
+            <div class="flex-1">
+                <div id="toastTitle" class="font-semibold mb-1"></div>
+                <div id="toastMessage" class="text-sm text-gray-400"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <script>
+        const CONTRACT_ADDRESS = "0x3bF664d5989C2a671E721696a11f74Da3FB7aF34";
+        const CONTRACT_ABI = [
+            "function campaignCount() public view returns (uint256)",
+            "function campaigns(uint256) public view returns (address creator, uint256 goal, uint256 deadline, uint256 amountRaised, bool withdrawn)",
+            "function createCampaign(uint256 _goal, uint256 _deadline) public",
+            "function contribute(uint256 _campaignId) public payable",
+            "function withdrawFunds(uint256 _campaignId) public",
+            "function refund(uint256 _campaignId) public"
+        ];
+
+        let provider, signer, contract, userAddress;
+        let selectedCampaignId = null;
+        const ETH_USD_RATE = 2500;
+
+        // CONNECT WALLET
+        document.getElementById('connectWalletBtn').addEventListener('click', async () => {
+            try {
+                if (!window.ethereum) {
+                    showToast('Error', 'Please install MetaMask!', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                
+                document.getElementById('connectWalletBtn').classList.add('hidden');
+                document.getElementById('walletBalanceDisplay').classList.remove('hidden');
+                document.getElementById('userAvatar').classList.remove('hidden');
+                document.getElementById('avatarText').textContent = userAddress.substring(2, 4).toUpperCase();
+                
+                const balance = await provider.getBalance(userAddress);
+                document.getElementById('balanceAmount').textContent = parseFloat(ethers.utils.formatEther(balance)).toFixed(4) + ' ETH';
+                
+                showToast('Success', 'Wallet connected!', 'success');
+                
+                await loadCampaigns();
+                await updateMetrics();
+                
+            } catch (error) {
+                console.error(error);
+                showToast('Error', 'Failed to connect', 'error');
+            }
+        });
+
+        // LOAD CAMPAIGNS
+        async function loadCampaigns() {
+            try {
+                const count = await contract.campaignCount();
+                const total = parseInt(count.toString());
+                
+                const container = document.getElementById('campaignListContainer');
+                container.innerHTML = '';
+                
+                if (total === 0) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-12">No campaigns yet</div>';
+                    return;
+                }
+                
+                for (let i = 1; i <= total; i++) {
+                    const campaign = await contract.campaigns(i);
+                    const goalEth = parseFloat(ethers.utils.formatEther(campaign.goal));
+                    const raisedEth = parseFloat(ethers.utils.formatEther(campaign.amountRaised));
+                    const progress = goalEth > 0 ? ((raisedEth / goalEth) * 100).toFixed(1) : 0;
+                    
+                    const now = Math.floor(Date.now() / 1000);
+                    const deadline = parseInt(campaign.deadline.toString());
+                    const daysLeft = Math.max(0, Math.ceil((deadline - now) / 86400));
+                    
+                    const card = `
+                        <div class="glass rounded-xl p-6 hover:bg-cardHover transition transform hover:-translate-y-1 cursor-pointer" onclick="selectCampaign(${i})">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-primary to-blue-500 rounded-full flex items-center justify-center font-bold text-dark">${i}</div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">Campaign #${i}</h3>
+                                        <p class="text-sm text-gray-400">${campaign.creator.substring(0, 6)}...${campaign.creator.substring(38)}</p>
+                                    </div>
+                                </div>
+                                <span class="bg-primary text-dark text-xs font-bold px-3 py-1 rounded-full">Active</span>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-400">Progress</span>
+                                    <span class="font-semibold">${progress}%</span>
+                                </div>
+                                <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="progress-bar-fill h-full" style="width: ${Math.min(progress, 100)}%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <div class="text-xs text-gray-400 mb-1">Goal</div>
+                                    <div class="font-semibold">${goalEth.toFixed(2)} ETH</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400 mb-1">Raised</div>
+                                    <div class="font-semibold text-primary">${raisedEth.toFixed(2)} ETH</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400 mb-1">Days Left</div>
+                                    <div class="font-semibold">${daysLeft}d</div>
+                                </div>
+                            </div>
+                            <button onclick="showContributeModal(${i}); event.stopPropagation();" class="w-full bg-primary text-dark py-2 rounded-lg font-semibold hover:glow transition">
+                                Contribute Now
+                            </button>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                }
+                
+            } catch (error) {
+                console.error(error);
+                showToast('Error', 'Failed to load campaigns', 'error');
+            }
+        }
+
+        // SELECT CAMPAIGN
+        async function selectCampaign(id) {
+            selectedCampaignId = id;
+            const campaign = await contract.campaigns(id);
+            
+            const goalEth = parseFloat(ethers.utils.formatEther(campaign.goal));
+            const raisedEth = parseFloat(ethers.utils.formatEther(campaign.amountRaised));
+            const progress = goalEth > 0 ? ((raisedEth / goalEth) * 100).toFixed(1) : 0;
+            
+            const html = `
+                <div class="animate-slide-in">
+                    <h2 class="text-2xl font-bold mb-4">Campaign #${id}</h2>
+                    <div class="bg-gradient-to-br from-primary to-blue-500 h-32 rounded-xl mb-6 flex items-center justify-center">
+                        <div class="text-dark text-4xl font-bold">#${id}</div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Progress</span>
+                            <span class="font-semibold">${progress}%</span>
+                        </div>
+                        <div class="h-3 bg-gray-700 rounded-full overflow-hidden mb-2">
+                            <div class="progress-bar-fill h-full" style="width: ${Math.min(progress, 100)}%"></div>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold">
+                            <span>${raisedEth.toFixed(2)} ETH</span>
+                            <span class="text-gray-400">/ ${goalEth.toFixed(2)} ETH</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="showContributeModal(${id})" class="w-full bg-primary text-dark py-3 rounded-lg font-bold hover:glow transition">Contribute</button>
+                        <button onclick="withdraw(${id})" class="w-full border border-primary text-primary py-3 rounded-lg font-bold hover:bg-primary hover:text-dark transition">Withdraw</button>
+                        <button onclick="refund(${id})" class="w-full border border-gray-600 text-gray-400 py-3 rounded-lg font-bold hover:border-white hover:text-white transition">Refund</button>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-border">
+                        <div class="text-xs text-gray-500">
+                            <div>Creator: ${campaign.creator.substring(0, 10)}...${campaign.creator.substring(34)}</div>
+                            <a href="https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}" target="_blank" class="text-primary hover:underline">View on Etherscan</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('campaignDetailsContainer').innerHTML = html;
+        }
+
+        // UPDATE METRICS
+        async function updateMetrics() {
+            const count = await contract.campaignCount();
+            const total = parseInt(count.toString());
+            let totalRaised = 0;
+            
+            for (let i = 1; i <= total; i++) {
+                const campaign = await contract.campaigns(i);
+                totalRaised += parseFloat(ethers.utils.formatEther(campaign.amountRaised));
+            }
+            
+            document.getElementById('totalRaisedETH').textContent = totalRaised.toFixed(2) + ' ETH';
+            document.getElementById('totalRaisedUSD').textContent = '~$' + (totalRaised * ETH_USD_RATE).toLocaleString();
+            document.getElementById('activeCampaignsCount').textContent = total;
+        }
+
+        // CREATE CAMPAIGN
+        function showCreateModal() {
+            if (!contract) { showToast('Error', 'Connect wallet first', 'error'); return; }
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('createModal').classList.add('flex');
+        }
+        function hideCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createModal').classList.remove('flex');
+        }
+        async function createCampaign() {
+            try {
+                const goal = document.getElementById('createGoalInput').value;
+                const days = document.getElementById('createDurationInput').value;
+                
+                if (!goal || goal <= 0 || !days || days <= 0) {
+                    showToast('Error', 'Invalid input', 'error');
+                    return;
+                }
+                
+                const goalWei = ethers.utils.parseEther(goal);
+                const block = await provider.getBlock('latest');
+                const deadline = block.timestamp + (parseInt(days) * 86400);
+                
+                hideCreateModal();
+                showToast('Processing', 'Creating campaign...', 'info');
+                
+                const tx = await contract.createCampaign(goalWei, deadline);
+                await tx.wait();
+                
+                showToast('Success', 'Campaign created!', 'success');
+                document.getElementById('createGoalInput').value = '';
+                document.getElementById('createDurationInput').value = '';
+                
+                await loadCampaigns();
+                await updateMetrics();
+            } catch (error) {
+                console.error(error);
+                showToast('Error', 'Failed to create', 'error');
+            }
+        }
+
+        // CONTRIBUTE
+        let contributeToCampaignId = null;
+        
+        function showContributeModal(campaignId) {
+            console.log('Opening contribute modal for campaign:', campaignId);
+            contributeToCampaignId = campaignId;
+            document.getElementById('contributeModal').classList.remove('hidden');
+            document.getElementById('contributeModal').classList.add('flex');
+        }
+        
+        function hideContributeModal() {
+            document.getElementById('contributeModal').classList.add('hidden');
+            document.getElementById('contributeModal').classList.remove('flex');
+            contributeToCampaignId = null;
+        }
+        
+        async function doContribute() {
+    try {
+        console.log('doContribute called');
+        console.log('Campaign ID:', contributeToCampaignId);
+        
+        if (!contributeToCampaignId) {
+            showToast('Error', 'No campaign selected', 'error');
+            return;
+        }
+        
+        // SAVE ID IMMEDIATELY
+        const campaignId = contributeToCampaignId;
+        console.log('Saved campaign ID to local var:', campaignId);
+        
+        const amount = document.getElementById('contributeAmountInput').value;
+        console.log('Amount:', amount);
+        
+        if (!amount || amount <= 0) {
+            showToast('Error', 'Invalid amount', 'error');
+            return;
+        }
+        
+        const valueWei = ethers.utils.parseEther(amount);
+        console.log('Wei value:', valueWei.toString());
+        console.log('Calling contract.contribute...');
+        
+        hideContributeModal(); // This resets contributeToCampaignId to null!
+        showToast('Processing', 'Sending transaction...', 'info');
+        
+        console.log('Using saved campaignId:', campaignId);
+        const tx = await contract.contribute(campaignId, { value: valueWei });
+        console.log('TX sent:', tx.hash);
+        
+        await tx.wait();
+        console.log('TX confirmed!');
+        
+        showToast('Success', 'Contribution successful!', 'success');
+        document.getElementById('contributeAmountInput').value = '';
+        
+        await loadCampaigns();
+        await updateMetrics();
+        if (selectedCampaignId) await selectCampaign(selectedCampaignId);
+        
+    } catch (error) {
+        console.error('Contribute error:', error);
+        showToast('Error', error.message.includes('insufficient') ? 'Insufficient funds' : 'Transaction failed', 'error');
+    }
+}
+
+        // WITHDRAW
+        async function withdraw(id) {
+            try {
+                if (!confirm('Withdraw from campaign #' + id + '?')) return;
+                showToast('Processing', 'Sending transaction...', 'info');
+                const tx = await contract.withdrawFunds(id);
+                await tx.wait();
+                showToast('Success', 'Withdrawal successful!', 'success');
+                await loadCampaigns();
+                await updateMetrics();
+                await selectCampaign(id);
+            } catch (error) {
+                console.error(error);
+                showToast('Error', 'Withdrawal failed', 'error');
+            }
+        }
+
+        // REFUND
+        async function refund(id) {
+            try {
+                if (!confirm('Request refund from campaign #' + id + '?')) return;
+                showToast('Processing', 'Sending transaction...', 'info');
+                const tx = await contract.refund(id);
+                await tx.wait();
+                showToast('Success', 'Refund successful!', 'success');
+                await loadCampaigns();
+                await updateMetrics();
+                await selectCampaign(id);
+            } catch (error) {
+                console.error(error);
+                showToast('Error', 'Refund failed', 'error');
+            }
+        }
+
+        // TOAST
+        function showToast(title, message, type = 'info') {
+            const icons = {
+                success: '<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+                error: '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+                info: '<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+            };
+            
+            document.getElementById('toastIcon').innerHTML = icons[type] || icons.info;
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toast').style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                document.getElementById('toast').style.transform = 'translateY(8rem)';
+            }, 3000);
+        }
+
+        function showComingSoon(feature) {
+            showToast('Coming Soon', feature + ' feature coming soon', 'info');
+        }
+
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', () => window.location.reload());
+            window.ethereum.on('chainChanged', () => window.location.reload());
+        }
+    </script>
+</body>
+</html>

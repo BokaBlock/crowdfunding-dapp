@@ -1,0 +1,14 @@
+node_modules/
+.env
+artifacts/
+cache/
+coverage/
+typechain/
+typechain-types/
+
+# Hide config with private key
+hardhat.config.js
+
+# OS files
+.DS_Store
+Thumbs.db
