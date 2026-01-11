@@ -1,10 +1,10 @@
-# 🚀 Crowdfunding DApp
+#  Crowdfunding DApp
 
 Decentralized crowdfunding platform built on Ethereum blockchain. Create campaigns, contribute ETH, and automatically handle refunds or withdrawals based on campaign success.
 
 ![Crowdfunding DApp](screenshots/homepage.png)
 
-## ✨ Features
+##  Features
 
 - **Create Campaigns** - Set funding goals and deadlines
 - **Contribute ETH** - Support campaigns with cryptocurrency
@@ -13,7 +13,7 @@ Decentralized crowdfunding platform built on Ethereum blockchain. Create campaig
 - **Real-time Updates** - Live campaign progress tracking
 - **Secure** - Smart contract enforced rules and transparency
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Smart Contract:**
 - Solidity 0.8.20
@@ -29,7 +29,7 @@ Decentralized crowdfunding platform built on Ethereum blockchain. Create campaig
 **Network:**
 - Sepolia Testnet
 
-## 📊 Smart Contract
+## Smart Contract
 
 **Contract Address:** `0x3bF664d5989C2a671E721696a11f74Da3FB7aF34`
 
@@ -41,7 +41,7 @@ Decentralized crowdfunding platform built on Ethereum blockchain. Create campaig
 - `withdrawFunds(uint256 _campaignId)` - Withdraw funds (creator only, if successful)
 - `refund(uint256 _campaignId)` - Get refund (if campaign failed)
 
-## 🚀 Local Setup
+##  Local Setup
 
 ### Prerequisites
 ```bash
@@ -104,7 +104,7 @@ npx hardhat run scripts/deploy.js --network sepolia
 5. **Share** - Share campaign ID with supporters
 6. **Withdraw** - Claim funds when goal reached after deadline
 
-## 🧪 Testing
+##  Testing
 
 Test suite includes 22 comprehensive tests:
 ```bash
@@ -112,16 +112,16 @@ npx hardhat test
 ```
 
 **Test Coverage:**
-- ✅ Campaign creation
-- ✅ Contribution handling
-- ✅ Withdrawal functionality
-- ✅ Refund mechanism
-- ✅ Access control
-- ✅ Edge cases & security
+-  Campaign creation
+-  Contribution handling
+-  Withdrawal functionality
+-  Refund mechanism
+-  Access control
+-  Edge cases & security
 
-All tests passing: **22/22** ✅
+All tests passing: **22/22** 
 
-## 🔐 Security Features
+##  Security Features
 
 - **Checks-Effects-Interactions** pattern
 - **Reentrancy protection**
@@ -130,25 +130,7 @@ All tests passing: **22/22** ✅
 - **Time-locked** withdrawals
 - **Transparent** on-chain logic
 
-## 📸 Screenshots
-
-### Homepage
-![Homepage](screenshots/homepage.png)
-
-### Campaign Details
-![Campaign Details](screenshots/campaign-details.png)
-
-### Contribute Modal
-![Contribute](screenshots/contribute-modal.png)
-
-### Create Campaign
-![Create](screenshots/create-modal.png)
-
-## 🌐 Live Demo
-
-**[View Live Demo](#)** *(Add GitHub Pages link here)*
-
-## 📚 What I Learned
+##  What I Learned
 
 Building this project taught me:
 
@@ -161,7 +143,7 @@ Building this project taught me:
 - Event-driven architecture
 - Async/await patterns in JavaScript
 
-## 🔮 Future Improvements
+##  Future Improvements
 
 - [ ] Campaign categories/tags
 - [ ] Campaign descriptions & images
@@ -172,52 +154,22 @@ Building this project taught me:
 - [ ] Mobile-responsive improvements
 - [ ] React migration
 
-## 📄 License
+##  License
 
 MIT License - feel free to use this project for learning!
 
-## 👤 Author
+##  Author
 
-**Your Name**
-- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
-- Portfolio: [your-portfolio.com](#)
+**BokaBlock**
+- GitHub: [@BokaBlock](https://github.com/BokaBlock)
 
-## 🙏 Acknowledgments
+
+##  Acknowledgments
 
 - Ethereum & Solidity documentation
 - Hardhat framework
 - OpenZeppelin contracts
 - Web3 community
 
----
 
-**Built with 💚 by a blockchain developer**
-```
-
----
-
-## ✏️ CUSTOMIZE:
-
-**Zamijeni:**
-1. `YOUR_USERNAME` → tvoj GitHub username
-2. `Your Name` → tvoje ime
-3. Screenshot paths - provjeri imena fileova
-4. Portfolio link (ako imaš)
-
----
-
-## 💾 SAVE:
-
-**Save kao `README.md` u ROOT folderu!**
-```
-crowdfunding-dapp/
-├── contracts/
-├── test/
-├── scripts/
-├── screenshots/        ← Dodaj folder!
-│   ├── homepage.png
-│   ├── campaign-details.png
-│   ├── contribute-modal.png
-│   └── create-modal.png
-├── index.html
-└── README.md          ← OVAJ FILE!
+**Built with Love by a blockchain developer**
